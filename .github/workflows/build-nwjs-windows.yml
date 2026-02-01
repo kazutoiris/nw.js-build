@@ -23,26 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install depot_tools
-        run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-          echo "${GITHUB_WORKSPACE}/depot_tools" >> $GITHUB_PATH
-
-      - name: Verify build tools
-        run: |
-          gclient --version
-          gn --version
-          ninja --version
-          python3 --version
+      - name: Install Depot Tools
+        uses: newkdev/setup-depot-tools@v1.0.1
 
       - name: Initialize NW.js source directory
         run: |
-
           New-Item -ItemType Directory -Path ${{ env.NWJS_DIR }} -Force | Out-Null
           cd ${{ env.NWJS_DIR }}
           gclient config --name=src https://github.com/nwjs/chromium.src.git@origin/${{env.NW_VERSION}}
