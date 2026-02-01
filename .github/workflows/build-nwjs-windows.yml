@@ -10,6 +10,7 @@ jobs:
     env:
       NWJS_DIR: ${{ github.workspace }}/nwjs
       SRC_DIR: ${{ github.workspace }}/nwjs/src
+      DEPOT_TOOLS_DIR: ${{ github.workspace }}/depot_tools
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
       GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=Official"
       GYP_GENERATORS: "ninja"
@@ -33,7 +34,7 @@ jobs:
       - name: Set-up Python 2.x
         shell: pwsh
         run: |
-          cd ${{ steps.depot.outputs.DEPOT_TOOLS_PATH }}\python2-bin
+          cd ${{ env.DEPOT_TOOLS_DIR }}\python2-bin
           New-Item -Path .\python.bat -ItemType SymbolicLink -Target .\python2.bat -Force
 
       - name: Initialize NW.js source directory
@@ -72,7 +73,7 @@ jobs:
       - name: Generate GN build files for Chromium
         run: |
           cd ${{ env.SRC_DIR }}
-          gn gen out/nw --args="is_debug=false is_component_ffmpeg=true target_cpu=x64 enable_nacl=false nwjs_sdk=false is_component_build=false"
+          gn gen out/nw
 
       - name: Generate GYP build files for Node
         run: |
