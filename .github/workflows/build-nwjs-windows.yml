@@ -79,7 +79,6 @@ jobs:
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
 
       - name: Sync source code with gclient
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd ${{ env.NWJS_DIR }}
           gclient sync --no-history
