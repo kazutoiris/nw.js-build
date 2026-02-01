@@ -16,7 +16,7 @@ jobs:
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
-      NW_VERSION: "nw69"
+      NW_VERSION: "nw79"
 
     steps:
       - name: Checkout
@@ -30,12 +30,8 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - name: Fix VPython3
-        run: |
-          cd ~/depot_tools
-          New-Item -Path .\vpython.bat -ItemType SymbolicLink -Target .\vpython3.bat -Force
-
       - name: Initialize NW.js source directory
+        shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ${{ env.NWJS_DIR }} -Force | Out-Null
           cd ${{ env.NWJS_DIR }}
@@ -55,16 +51,16 @@ jobs:
           "@
           $updatedContent | Set-Content .gclient -Encoding utf8
 
-      - name: Sync source code with gclient
-        run: |
-          cd ${{ env.NWJS_DIR }}
-          gclient sync --no-history
-
       - name: Clone NW.js dependent repos
         run: |
           git clone -b ${{env.NW_VERSION}}  --depth 1 --recursive https://github.com/nwjs/nw.js.git ${{ env.SRC_DIR }}/content/nw
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/node.git ${{ env.SRC_DIR }}/third_party/node-nw
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
+
+      - name: Sync source code with gclient
+        run: |
+          cd ${{ env.NWJS_DIR }}
+          gclient sync --no-history
 
       - name: Generate GN build files for Chromium
         run: |
