@@ -23,6 +23,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set Global Git Configs
+        shell: pwsh
+        run: |
+            git config --global core.autocrlf false
+            git config --global core.filemode false
+            git config --global core.longpaths true
+            git config --global core.preloadindex true
+            git config --global core.fscache true
+
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
