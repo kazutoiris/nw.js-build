@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - uses: LizardByte/actions/actions/setup_python@master
         with:
           python-version: '2.7'
 
