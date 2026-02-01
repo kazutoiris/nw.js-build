@@ -1,0 +1,95 @@
+name: Build NW.js on Windows
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    env:
+      NWJS_DIR: ${{ github.workspace }}/nwjs
+      SRC_DIR: ${{ github.workspace }}/nwjs/src
+      DEPOT_TOOLS_DIR: ${{ github.workspace }}/depot_tools
+      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=Official"
+      GYP_GENERATORS: "ninja"
+      GYP_CHROMIUM_NO_ACTION: 0
+      GYP_GENERATOR_FLAGS: "output_dir=out"
+      NW_VERSION: "nw29"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install depot_tools
+        run: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          echo "${GITHUB_WORKSPACE}/depot_tools" >> $GITHUB_PATH
+
+      - name: Verify build tools
+        run: |
+          gclient --version
+          gn --version
+          ninja --version
+          python3 --version
+
+      - name: Initialize NW.js source directory
+        run: |
+
+          New-Item -ItemType Directory -Path ${{ env.NWJS_DIR }} -Force | Out-Null
+          cd ${{ env.NWJS_DIR }}
+          gclient config --name=src https://github.com/nwjs/chromium.src.git@origin/${{env.NW_VERSION}}
+
+      - name: Clone NW.js dependent repos
+        run: |
+          git clone https://github.com/nwjs/nw.js.git ${{ env.SRC_DIR }}/content/nw
+          git clone https://github.com/nwjs/node.git ${{ env.SRC_DIR }}/third_party/node-nw
+          git clone https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
+
+      - name: Sync source code with gclient
+        run: |
+          cd ${{ env.NWJS_DIR }}
+          gclient sync --with_branch_heads --nohooks
+
+      - name: Generate GN build files for Chromium
+        run: |
+          cd ${{ env.SRC_DIR }}
+          gn gen out/nw --args="is_debug=false is_component_ffmpeg=true target_cpu='x64' enable_nacl=false nwjs_sdk=false is_component_build=false"
+
+      - name: Generate GYP build files for Node
+        run: |
+          cd ${{ env.SRC_DIR }}
+          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D msvs_version=2021 -D build_type=Release_x64 third_party/node-nw/node.gyp
+
+      - name: Build NW.js core
+        run: |
+          cd ${{ env.SRC_DIR }}
+          ninja -C out/nw -j nwjs
+
+      - name: Build Node library
+        run: |
+          cd ${{ env.SRC_DIR }}
+          ninja -C out/Release -j node
+
+      - name: Copy Node library to NW.js
+        run: |
+          cd ${{ env.SRC_DIR }}
+          ninja -C out/nw copy_node
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nwjs-windows-x64
+          path: |
+            ${{ env.SRC_DIR }}/out/nw/nw.exe
+            ${{ env.SRC_DIR }}/out/nw/*.dll
+            ${{ env.SRC_DIR }}/out/nw/resources/
+            ${{ env.SRC_DIR }}/out/nw/LICENSE
