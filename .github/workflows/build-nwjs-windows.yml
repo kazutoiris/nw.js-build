@@ -16,7 +16,7 @@ jobs:
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
-      NW_VERSION: "nw69"
+      NW_VERSION: "nw79"
 
     steps:
       - name: Checkout
@@ -29,11 +29,6 @@ jobs:
 
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
-
-      - name: Fix VPython3
-        run: |
-          cd ~/depot_tools
-          mklink vpython.bat vpython3.bat
 
       - name: Initialize NW.js source directory
         run: |
