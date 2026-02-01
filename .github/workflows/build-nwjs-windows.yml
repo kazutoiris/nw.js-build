@@ -39,7 +39,6 @@ jobs:
           $gclientContent = Get-Content .gclient -Raw
           $updatedContent = $gclientContent -replace '"custom_deps" : \{[^}]+\}', @"
           "custom_deps" : {
-            "src/third_party/devtools-node-modules": None,
             "src/third_party/WebKit/LayoutTests": None,
             "src/chrome_frame/tools/test/reference_build/chrome": None,
             "src/chrome_frame/tools/test/reference_build/chrome_win": None,
