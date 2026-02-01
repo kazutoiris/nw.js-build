@@ -28,6 +28,10 @@ jobs:
           python-version: '2.7'
 
       - name: Install Windows 11 SDK (10.0.22621.0)
+        run: |
+            winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--wait --passive --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.26100"
+
+      - name: Install Windows 11 SDK (10.0.22621.0)
         uses: ilammy/msvc-dev-cmd@v1.4.1
         with:
           sdk: '10.0.22621.0'
@@ -99,7 +103,7 @@ jobs:
       - name: Generate GYP build files for Node
         run: |
           cd ${{ env.SRC_DIR }}
-          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D msvs_version=2022 -D build_type=Release_x64 third_party/node-nw/node.gyp
+          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D msvs_version="C:\Program Files\Microsoft Visual Studio\2022\Enterprise" -D build_type=Release_x64 third_party/node-nw/node.gyp
 
       - name: Build NW.js core
         run: |
