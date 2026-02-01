@@ -105,12 +105,12 @@ jobs:
       - name: Build NW.js core
         run: |
           cd ${{ env.SRC_DIR }}
-          ninja -C out/nw nwjs
+          ninja -C out/nw -j8 nwjs
 
       - name: Build Node library
         run: |
           cd ${{ env.SRC_DIR }}
-          ninja -C out/Release node
+          ninja -C out/Release -j8 node
 
       - name: Copy Node library to NW.js
         run: |
