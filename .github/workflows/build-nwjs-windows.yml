@@ -27,13 +27,10 @@ jobs:
         with:
           python-version: '2.7'
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        with:
-          msbuild-architecture: x64
-
       - name: Install Windows 11 SDK (10.0.22621.0)
-        run: choco install windows-sdk-11-version-22H2-all -y
+        uses: ilammy/msvc-dev-cmd@v1.4.1
+        with:
+          sdk: '10.0.22621.0'
 
       - name: Set Global Git Configs
         shell: pwsh
