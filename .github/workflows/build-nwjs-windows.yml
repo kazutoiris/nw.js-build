@@ -105,31 +105,6 @@ jobs:
       - name: Build NW.js core
         run: |
           cd ${{ env.SRC_DIR }}
-
-          CHECKER_PID=0
-          NINJA_PID=0
-
-          timeout_checker() {
-            sleep 14400
-            if ps -p $NINJA_PID > /dev/null 2>&1; then
-              kill -TERM $NINJA_PID 2>/dev/null
-              echo "false" > $RESULT_FILE
-            fi
-          }
-
-          $MAKE_CMD &
-          NINJA_PID=$!
-          timeout_checker &
-          CHECKER_PID=$!
-
-          wait $NINJA_PID 2>/dev/null
-
-          if ps -p $CHECKER_PID > /dev/null 2>&1; then
-            kill -TERM $CHECKER_PID 2>/dev/null
-            echo "make在${TIMEOUT_SEC}秒内完成，已终止后台检测进程"
-          fi
-
-          MAKE_RESULT=$(cat $RESULT_FILE)
           ninja -C out/nw -j8 nwjs
 
       - name: Build Node library
