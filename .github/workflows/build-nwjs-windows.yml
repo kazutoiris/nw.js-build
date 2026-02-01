@@ -21,6 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set-up Python 2.x
+        uses: LizardByte/actions/actions/setup_python@master
+        with:
+          python-version: '2.7'
+
       - name: Set Global Git Configs
         shell: pwsh
         run: |
@@ -29,16 +34,6 @@ jobs:
       - name: Install Depot Tools
         id: depot
         uses: newkdev/setup-depot-tools@v1.0.1
-
-      - name: Set-up Python 2.x
-        shell: pwsh
-        run: |
-          cd ~/depot_tools/python2-bin
-          New-Item -Path .\python.bat -ItemType SymbolicLink -Target .\python2.bat -Force
-
-      - shell: pwsh
-        run: |
-          python --version
 
       - name: Initialize NW.js source directory
         shell: pwsh
