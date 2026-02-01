@@ -32,15 +32,16 @@ jobs:
         shell: pwsh
         run: |
             $RepositoryUrl = "https://github.com/rust-skia/depot_tools.git"
-            $InstallLocation = "${{ github.workspace }}"
+            $InstallLocation = "${{ env.DEPOT_TOOLS_DIR }}"
 
             New-Item $InstallLocation -ItemType Directory -ea 0
             Set-Location $InstallLocation
 
             $InstallLocation = Resolve-Path -Path $InstallLocation
-            git clone $RepositoryUrl .
+            git clone --depth 1 --recursive $RepositoryUrl .
 
       - name: Install Depot Tools
+        shell: bash
         run: |
           echo "$DEPOT_TOOLS" >> $GITHUB_PATH
           echo "$DEPOT_TOOLS/python2-bin" >> $GITHUB_PATH
