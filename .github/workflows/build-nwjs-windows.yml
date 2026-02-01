@@ -15,8 +15,8 @@ jobs:
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
-      NW_VERSION: "nw79"
       GYP_MSVS_VERSION: "2022"
+      NW_VERSION: "nw79"
 
     steps:
       - name: Checkout
