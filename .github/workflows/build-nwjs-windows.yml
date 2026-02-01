@@ -27,6 +27,11 @@ jobs:
         with:
           python-version: '2.7'
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+
       - name: Install Windows 11 SDK (10.0.22621.0)
         run: choco install windows-sdk-11-version-22H2-all -y
 
