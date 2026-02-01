@@ -32,7 +32,7 @@ jobs:
         shell: pwsh
         run: |
             $RepositoryUrl = "https://github.com/rust-skia/depot_tools.git"
-            $InstallLocation = "${{env.DEPOT_TOOLS_DIR}}"
+            $InstallLocation = "${{ github.workspace }}"
 
             New-Item $InstallLocation -ItemType Directory -ea 0
             Set-Location $InstallLocation
