@@ -16,6 +16,7 @@ jobs:
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
       NW_VERSION: "nw79"
+      GYP_MSVS_VERSION: "2022"
 
     steps:
       - name: Checkout
@@ -81,7 +82,7 @@ jobs:
       - name: Generate GYP build files for Node
         run: |
           cd ${{ env.SRC_DIR }}
-          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D msvs_version=2021 -D build_type=Release_x64 third_party/node-nw/node.gyp
+          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D msvs_version=2022 -D build_type=Release_x64 third_party/node-nw/node.gyp
 
       - name: Build NW.js core
         run: |
