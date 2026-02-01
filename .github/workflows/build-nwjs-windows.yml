@@ -16,6 +16,7 @@ jobs:
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
       GYP_MSVS_VERSION: "2022"
+      GYP_MSVS_OVERRIDE_PATH: "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
       NW_VERSION: "nw79"
 
     steps:
@@ -30,11 +31,6 @@ jobs:
       - name: Install Windows 11 SDK (10.0.22621.0)
         run: |
           choco install windows-sdk-11-version-22H2-all -y
-
-      - name: Install Windows 11 SDK (10.0.22621.0)
-        uses: ilammy/msvc-dev-cmd@v1.4.1
-        with:
-          sdk: '10.0.22621.0'
 
       - name: Set Global Git Configs
         shell: pwsh
@@ -104,7 +100,7 @@ jobs:
       - name: Generate GYP build files for Node
         run: |
           cd ${{ env.SRC_DIR }}
-          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D msvs_version="C:\Program Files\Microsoft Visual Studio\2022\Enterprise" -D build_type=Release_x64 third_party/node-nw/node.gyp
+          python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D build_type=Release_x64 third_party/node-nw/node.gyp
 
       - name: Build NW.js core
         run: |
