@@ -10,7 +10,6 @@ jobs:
     env:
       NWJS_DIR: ${{ github.workspace }}/nwjs
       SRC_DIR: ${{ github.workspace }}/nwjs/src
-      DEPOT_TOOLS_DIR: ${{ github.workspace }}/depot_tools
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
       GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=Official"
       GYP_GENERATORS: "ninja"
@@ -36,6 +35,10 @@ jobs:
         run: |
           cd ~/depot_tools/python2-bin
           New-Item -Path .\python.bat -ItemType SymbolicLink -Target .\python2.bat -Force
+
+      - shell: pwsh
+        run: |
+          python --version
 
       - name: Initialize NW.js source directory
         shell: pwsh
