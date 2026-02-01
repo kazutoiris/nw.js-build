@@ -22,6 +22,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '2.7'
+
       - name: Set Global Git Configs
         shell: pwsh
         run: |
