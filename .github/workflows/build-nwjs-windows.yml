@@ -26,6 +26,9 @@ jobs:
         with:
           python-version: '2.7'
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
       - name: Set Global Git Configs
         shell: pwsh
         run: |
