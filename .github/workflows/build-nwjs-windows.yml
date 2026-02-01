@@ -16,7 +16,7 @@ jobs:
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
       GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       NW_VERSION: "nw79"
 
     steps:
