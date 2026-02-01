@@ -34,7 +34,7 @@ jobs:
       - name: Set-up Python 2.x
         shell: pwsh
         run: |
-          cd ${{ env.DEPOT_TOOLS_DIR }}\python2-bin
+          cd ${{ env.DEPOT_TOOLS_DIR }}/python2-bin
           New-Item -Path .\python.bat -ItemType SymbolicLink -Target .\python2.bat -Force
 
       - name: Initialize NW.js source directory
