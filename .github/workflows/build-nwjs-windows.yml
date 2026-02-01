@@ -12,12 +12,11 @@ jobs:
       SRC_DIR: ${{ github.workspace }}/nwjs/src
       DEPOT_TOOLS_DIR: ${{ github.workspace }}/depot_tools
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      DEPOT_TOOLS_UPDATE: 0
       GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=Official"
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
-      NW_VERSION: "nw39"
+      NW_VERSION: "nw99"
 
     steps:
       - name: Checkout
@@ -29,23 +28,7 @@ jobs:
             git config --global depot-tools.allowGlobalGitConfig true
 
       - name: Install Depot Tools
-        shell: pwsh
-        run: |
-            $RepositoryUrl = "https://github.com/rust-skia/depot_tools.git"
-            $InstallLocation = "${{ env.DEPOT_TOOLS_DIR }}"
-
-            New-Item $InstallLocation -ItemType Directory -ea 0
-            Set-Location $InstallLocation
-
-            $InstallLocation = Resolve-Path -Path $InstallLocation
-            git clone --depth 1 --recursive $RepositoryUrl .
-
-      - name: Install Depot Tools
-        shell: bash
-        run: |
-          echo "$DEPOT_TOOLS_DIR" >> $GITHUB_PATH
-          echo "$DEPOT_TOOLS_DIR/python2-bin" >> $GITHUB_PATH
-          echo "$DEPOT_TOOLS_DIR/python-bin" >> $GITHUB_PATH
+        uses: newkdev/setup-depot-tools@v1.0.1
 
       - name: Initialize NW.js source directory
         shell: pwsh
@@ -78,7 +61,7 @@ jobs:
       - name: Sync source code with gclient
         run: |
           cd ${{ env.NWJS_DIR }}
-          gclient sync
+          gclient sync --no-history
 
       - name: Generate GN build files for Chromium
         run: |
