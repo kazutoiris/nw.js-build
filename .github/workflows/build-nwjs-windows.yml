@@ -12,6 +12,7 @@ jobs:
       SRC_DIR: ${{ github.workspace }}/nwjs/src
       DEPOT_TOOLS_DIR: ${{ github.workspace }}/depot_tools
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+      DEPOT_TOOLS_UPDATE: 0
       GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=Official"
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
