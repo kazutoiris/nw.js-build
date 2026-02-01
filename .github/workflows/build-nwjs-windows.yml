@@ -21,17 +21,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
       - name: Set Global Git Configs
         shell: pwsh
         run: |
             git config --global depot-tools.allowGlobalGitConfig true
 
       - name: Install Depot Tools
+        id: depot
         uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: Set-up Python 2.x
+        shell: pwsh
+        run: |
+          cd ${{ steps.depot.outputs.DEPOT_TOOLS_PATH }}\python2-bin
+          New-Item -Path .\python.bat -ItemType SymbolicLink -Target .\python2.bat -Force
 
       - name: Initialize NW.js source directory
         shell: pwsh
@@ -69,7 +72,7 @@ jobs:
       - name: Generate GN build files for Chromium
         run: |
           cd ${{ env.SRC_DIR }}
-          gn gen out/nw --args="is_debug=false is_component_ffmpeg=true target_cpu='x64' enable_nacl=false nwjs_sdk=false is_component_build=false"
+          gn gen out/nw --args="is_debug=false is_component_ffmpeg=true target_cpu=x64 enable_nacl=false nwjs_sdk=false is_component_build=false"
 
       - name: Generate GYP build files for Node
         run: |
