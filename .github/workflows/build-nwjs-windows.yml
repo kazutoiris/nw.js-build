@@ -68,7 +68,7 @@ jobs:
       - name: Sync source code with gclient
         run: |
           cd ${{ env.NWJS_DIR }}
-          gclient sync --no-history -j 8
+          gclient sync --no-history
 
       - name: Generate GN build files for Chromium
         run: |
