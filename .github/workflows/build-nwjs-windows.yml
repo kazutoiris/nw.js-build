@@ -53,6 +53,7 @@ jobs:
 
       - name: Clone NW.js dependent repos
         run: |
+          New-Item -ItemType Directory -Path ${{ env.SRC_DIR }} -Force | Out-Null
           git clone -b ${{env.NW_VERSION}}  --depth 1 --recursive https://github.com/nwjs/nw.js.git ${{ env.SRC_DIR }}/content/nw
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/node.git ${{ env.SRC_DIR }}/third_party/node-nw
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
