@@ -95,6 +95,9 @@ jobs:
       - name: Generate GN build files for Chromium
         run: |
           cd ${{ env.SRC_DIR }}
+          $currentUnixTimestamp = [Math]::Floor((Get-Date -Date (Get-Date).ToUniversalTime() -UFormat %s))
+          Set-Content -Path "build\util\LASTCHANGE.committime" -Value $currentUnixTimestamp
+          Set-Content -Path "build\util\LASTCHANGE" -Value "${{github.actor}}"
           gn gen out/nw
 
       - name: Generate GYP build files for Node
