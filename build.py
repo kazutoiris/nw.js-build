@@ -8,7 +8,7 @@ import os
 
 def _run_build_process_timeout(*args, timeout):
     cmd_input = []
-    cmd_input.append(' '.join(map('"{}"'.format, args)))
+    cmd_input.append(' '.join(map('{}'.format, args)))
     cmd_input.append('exit\n')
     with subprocess.Popen(('cmd.exe', '/k'), encoding='utf-8', stdin=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP) as proc:
         proc.stdin.write('\n'.join(cmd_input))
