@@ -97,7 +97,7 @@ jobs:
           cd ${{ env.SRC_DIR }}
           $currentUnixTimestamp = [Math]::Floor((Get-Date -Date (Get-Date).ToUniversalTime() -UFormat %s))
           Set-Content -Path "build\util\LASTCHANGE.committime" -Value $currentUnixTimestamp
-          "LASTCHANGE=c82a45a20f632485dd6bf90667f67bc6c122d408",
+          "LASTCHANGE=0000000000000000000000000000000000000000",
           "LASTCHANGE_YEAR=2026" | Set-Content "build\util\LASTCHANGE"
           Copy-Item -Path "build\util\LASTCHANGE.dummy" -Destination "build\util\LASTCHANGE"
 
