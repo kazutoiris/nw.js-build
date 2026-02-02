@@ -100,7 +100,7 @@ jobs:
           "LASTCHANGE=0000000000000000000000000000000000000000",
           "LASTCHANGE_YEAR=2026" | Set-Content "build\util\LASTCHANGE"
 
-          gn gen out/nw
+          gn gen out/nw "--args=is_component_build=true is_debug=true"
 
       - name: Generate GYP build files for Node
         run: |
