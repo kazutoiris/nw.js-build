@@ -6,9 +6,7 @@ import subprocess
 import ctypes
 import os
 
-def _run_build_process_timeout(*args, timeout):
-    cmd_input = []
-    cmd_input.append(' '.join(map('{}'.format, args)))
+def _run_build_process_timeout(cmd_input, timeout):
     cmd_input.append('exit\n')
     with subprocess.Popen(('cmd.exe', '/k'), encoding='utf-8', stdin=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP) as proc:
         proc.stdin.write('\n'.join(cmd_input))
@@ -30,8 +28,10 @@ def _run_build_process_timeout(*args, timeout):
 
 def main():
     try:
-        _run_build_process_timeout("ping 127.0.0.1 -t && ping 127.0.0.1 -t",
-                                    timeout=30)
+        cmd_input = []
+        cmd_input.append("ping 127.0.0.1 -t")
+        cmd_input.append("ping 127.0.0.1 -t")
+        _run_build_process_timeout(cmd_input, timeout=30)
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
     except KeyboardInterrupt as e:
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=false")
