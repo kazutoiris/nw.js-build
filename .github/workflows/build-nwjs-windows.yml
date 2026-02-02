@@ -11,7 +11,7 @@ jobs:
       NWJS_DIR: ${{ github.workspace }}\nwjs
       SRC_DIR: ${{ github.workspace }}\nwjs\src
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=default"
+      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 nwjs_sdk=0 disable_nacl=1 buildtype=Official"
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
@@ -40,16 +40,7 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - name: Restore
-        id: cache
-        uses: actions/cache/restore@v5
-        with:
-          path: |
-            ${{ env.NWJS_DIR }}
-          key: ${{ env.NW_VERSION }}-src
-
       - name: Initialize NW.js source directory
-        if: steps.cache.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ${{ env.NWJS_DIR }} -Force | Out-Null
@@ -71,7 +62,6 @@ jobs:
           $updatedContent | Set-Content .gclient -Encoding utf8
 
       - name: Clone NW.js dependent repos
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Path ${{ env.SRC_DIR }} -Force | Out-Null
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/nw.js.git ${{ env.SRC_DIR }}/content/nw
@@ -79,14 +69,12 @@ jobs:
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
 
       - name: Sync source code with gclient
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd ${{ env.NWJS_DIR }}
-          gclient sync --no-history
+          gclient sync
 
       - name: Save
         uses: actions/cache/save@v5
-        if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
             ${{ env.NWJS_DIR }}
