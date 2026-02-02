@@ -1,0 +1,43 @@
+name: Test
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    outputs:
+      finish: ${{ steps.run-build.outputs.finish }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set-up Python 2.x
+        uses: LizardByte/actions/actions/setup_python@master
+        with:
+          python-version: '3.7'
+
+      - name: Run Python 2.x
+        id: run-build
+        run: |
+          python3 build.py
+
+  build2:
+    runs-on: windows-latest
+    needs: build
+    outputs:
+      finish: ${{ steps.run-build.outputs.finish }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set-up Python 2.x
+        uses: LizardByte/actions/actions/setup_python@master
+        with:
+          python-version: '3.7'
+
+      - name: Run Python 2.x
+        id: run-build
+        run: |
+          python3 build.py
