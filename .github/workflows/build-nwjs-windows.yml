@@ -73,32 +73,32 @@ jobs:
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
 
       - name: Sync source code with gclient
-        working-dir: ${{ env.NWJS_DIR }}
+        working-directory: ${{ env.NWJS_DIR }}
         run: |
           gclient sync
 
       - name: Generate GN build files for NW.js
-        working-dir: ${{ env.SRC_DIR }}
+        working-directory: ${{ env.SRC_DIR }}
         run: |
           gn gen out/nw --args="is_component_build=false is_debug=false symbol_level=0 blink_symbol_level=0 v8_symbol_level=0 is_component_ffmpeg=true"
 
       - name: Generate GYP build files for Node
-        working-dir: ${{ env.SRC_DIR }}
+        working-directory: ${{ env.SRC_DIR }}
         run: |
           python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D build_type=Release_x64 third_party/node-nw/node.gyp
 
       - name: Build NW.js core
-        working-dir: ${{ env.SRC_DIR }}
+        working-directory: ${{ env.SRC_DIR }}
         run: |
           ninja -C out/nw nwjs
 
       - name: Build Node library
-        working-dir: ${{ env.SRC_DIR }}
+        working-directory: ${{ env.SRC_DIR }}
         run: |
           ninja -C out/Release node
 
       - name: Copy Node library to NW.js
-        working-dir: ${{ env.SRC_DIR }}
+        working-directory: ${{ env.SRC_DIR }}
         run: |
           ninja -C out/nw copy_node
 
