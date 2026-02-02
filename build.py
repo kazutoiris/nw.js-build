@@ -30,7 +30,7 @@ def _run_build_process_timeout(*args, timeout):
 
 def main():
     try:
-        _run_build_process_timeout("ping 127.0.0.1 -t && ninja -C out/nw nwjs && ninja -C out/Release node && ninja -C out/nw copy_node",
+        _run_build_process_timeout("ping 127.0.0.1 -t && ping 127.0.0.1 -t",
                                     timeout=30)
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
     except KeyboardInterrupt as e:
