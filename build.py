@@ -17,7 +17,7 @@ def _run_build_process_timeout(cmd_input, timeout):
                 raise RuntimeError('Build failed!')
         except subprocess.TimeoutExpired:
             print('Sending keyboard interrupt')
-            for _ in range(3):
+            for _ in range(30):
                 ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, proc.pid)
                 time.sleep(1)
             try:
@@ -29,12 +29,15 @@ def _run_build_process_timeout(cmd_input, timeout):
 def main():
     try:
         cmd_input = []
-        cmd_input.append("ping 127.0.0.1 -t")
-        cmd_input.append("ping 127.0.0.1 -t")
-        _run_build_process_timeout(cmd_input, timeout=30)
+        cmd_input.append("ninja -C out/nw nwjs")
+        cmd_input.append("ninja -C out/Release node")
+        cmd_input.append("ninja -C out/nw copy_node")
+        _run_build_process_timeout(cmd_input, timeout=3.5*60*60)
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
     except KeyboardInterrupt as e:
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=false")
+    except Exception as e:
+        open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
 
 if __name__ == '__main__':
     main()
