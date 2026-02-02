@@ -88,7 +88,7 @@ jobs:
           python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D build_type=Release_x64 third_party/node-nw/node.gyp
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
@@ -149,14 +149,14 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
         with:
           name: my-artifact
@@ -218,14 +218,14 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
         with:
           name: my-artifact
@@ -286,14 +286,14 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
         with:
           name: my-artifact
@@ -355,14 +355,14 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
         with:
           name: my-artifact
