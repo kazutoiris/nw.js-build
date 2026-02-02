@@ -99,7 +99,6 @@ jobs:
           Set-Content -Path "build\util\LASTCHANGE.committime" -Value $currentUnixTimestamp
           "LASTCHANGE=0000000000000000000000000000000000000000",
           "LASTCHANGE_YEAR=2026" | Set-Content "build\util\LASTCHANGE"
-          Copy-Item -Path "build\util\LASTCHANGE.dummy" -Destination "build\util\LASTCHANGE"
 
           gn gen out/nw
 
