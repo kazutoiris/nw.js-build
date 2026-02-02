@@ -90,6 +90,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: build-cache
+          overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
@@ -137,6 +139,7 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
+          name: build-cache
           path: ${{ env.NWJS_DIR }}
 
       - name: Build NW.js core
@@ -148,6 +151,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: build-cache
+          overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
@@ -203,6 +208,7 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
+          name: build-cache
           path: ${{ env.NWJS_DIR }}
 
       - name: Build NW.js core
@@ -214,6 +220,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: build-cache
+          overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
@@ -268,6 +276,7 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
+          name: build-cache
           path: ${{ env.NWJS_DIR }}
 
       - name: Build NW.js core
@@ -279,6 +288,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: build-cache
+          overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
@@ -334,6 +345,7 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
+          name: build-cache
           path: ${{ env.NWJS_DIR }}
 
       - name: Build NW.js core
@@ -345,6 +357,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: build-cache
+          overwrite: true
           path: |
             ${{ env.NWJS_DIR }}
 
