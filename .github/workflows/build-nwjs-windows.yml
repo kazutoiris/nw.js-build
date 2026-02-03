@@ -114,7 +114,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -189,7 +189,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -269,7 +269,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -348,7 +348,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -428,7 +428,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
