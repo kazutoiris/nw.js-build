@@ -29,9 +29,10 @@ def _run_build_process_timeout(cmd_input, timeout):
 def main():
     try:
         cmd_input = []
-        cmd_input.append("ninja -C out/nw nwjs")
-        cmd_input.append("ninja -C out/Release node")
+        cmd_input.append("ninja -C out/nw nwjs libperfettonode")
+        cmd_input.append("ninja -C out/Release_x64 node")
         cmd_input.append("ninja -C out/nw copy_node")
+        cmd_input.append("ninja -C out/nw dist")
         _run_build_process_timeout(cmd_input, timeout=3.5*60*60)
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
     except KeyboardInterrupt as e:
