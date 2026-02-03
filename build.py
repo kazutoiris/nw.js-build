@@ -29,7 +29,7 @@ def _run_build_process_timeout(cmd_input, timeout):
 def main():
     try:
         cmd_input = []
-        cmd_input.append("ninja -C out/nw nwjs libperfettonode")
+        cmd_input.append("ninja -C out/nw nwjs")
         cmd_input.append("ninja -C out/Release_x64 node")
         cmd_input.append("ninja -C out/nw copy_node")
         cmd_input.append("ninja -C out/nw dist")
