@@ -114,7 +114,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -173,10 +173,10 @@ jobs:
           New-Item -ItemType Directory -Path $env:NWJS_DIR -Force
 
       - name: Decompress artifacts
-        shell: cmd
+        shell: bash
         run: |
-          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -C nwjs --force-local --use-compress-program "zstd -d"
-          
+          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
+
       - run: |
           rm artifact.tzst
 
@@ -189,7 +189,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -256,10 +256,9 @@ jobs:
           New-Item -ItemType Directory -Path $env:NWJS_DIR -Force
 
       - name: Decompress artifacts
-        shell: cmd
+        shell: bash
         run: |
-          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -C nwjs --force-local --use-compress-program "zstd -d"
-          del artifact.tzst
+          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -270,7 +269,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -P -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -336,10 +335,9 @@ jobs:
           New-Item -ItemType Directory -Path $env:NWJS_DIR -Force
 
       - name: Decompress artifacts
-        shell: cmd
+        shell: bash
         run: |
-          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -C nwjs --force-local --use-compress-program "zstd -d"
-          del artifact.tzst
+          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -350,7 +348,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -P -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -417,10 +415,9 @@ jobs:
           New-Item -ItemType Directory -Path $env:NWJS_DIR -Force
 
       - name: Decompress artifacts
-        shell: cmd
+        shell: bash
         run: |
-          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -C nwjs --force-local --use-compress-program "zstd -d"
-          del artifact.tzst
+          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -431,7 +428,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -P -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
