@@ -165,13 +165,14 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-cache
 
       - name: Decompress artifacts
         shell: cmd
         run: |
+          mkdir ${{ env.NWJS_DIR}}
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
@@ -243,13 +244,14 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-cache
 
       - name: Decompress artifacts
         shell: cmd
         run: |
+          mkdir ${{ env.NWJS_DIR}}
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
@@ -320,13 +322,14 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-cache
 
       - name: Decompress artifacts
         shell: cmd
         run: |
+          mkdir ${{ env.NWJS_DIR}}
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
@@ -398,13 +401,14 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-cache
 
       - name: Decompress artifacts
         shell: cmd
         run: |
+          mkdir ${{ env.NWJS_DIR}}
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
