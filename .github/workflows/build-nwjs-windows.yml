@@ -50,7 +50,7 @@ jobs:
         with:
           path: |
             ${{ env.NWJS_DIR }}
-          key: ${{ env.NW_VERSION }}-src
+          key: ${{ env.NW_VERSION }}-src-123
 
       - name: Initialize NW.js source directory
         if: steps.cache.outputs.cache-hit != 'true'
@@ -88,13 +88,13 @@ jobs:
           cd ${{ env.NWJS_DIR }}
           gclient sync --no-history
 
-      - name: Save
-        uses: actions/cache/save@v5
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          path: |
-            ${{ env.NWJS_DIR }}
-          key: ${{ env.NW_VERSION }}-src
+      # - name: Save
+      #   uses: actions/cache/save@v5
+      #   if: steps.cache.outputs.cache-hit != 'true'
+      #   with:
+      #     path: |
+      #       ${{ env.NWJS_DIR }}
+      #     key: ${{ env.NW_VERSION }}-src
 
       - name: Generate GN build files for Chromium
         run: |
