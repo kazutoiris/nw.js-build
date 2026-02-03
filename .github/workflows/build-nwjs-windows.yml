@@ -11,7 +11,7 @@ jobs:
       NWJS_DIR: ${{ github.workspace }}\nwjs
       SRC_DIR: ${{ github.workspace }}\nwjs\src
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official is_component_build=false is_debug=false"
+      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official is_debug=false"
       GYP_GENERATORS: "ninja"
       GYP_CHROMIUM_NO_ACTION: 0
       GYP_GENERATOR_FLAGS: "output_dir=out"
