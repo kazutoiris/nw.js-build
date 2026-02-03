@@ -109,7 +109,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -180,7 +180,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -259,7 +259,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -337,7 +337,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -416,7 +416,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
