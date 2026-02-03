@@ -50,7 +50,7 @@ jobs:
         with:
           path: |
             ${{ env.NWJS_DIR }}
-          key: ${{ env.NW_VERSION }}-src-123
+          key: ${{ env.NW_VERSION }}-src
 
       - name: Initialize NW.js source directory
         if: steps.cache.outputs.cache-hit != 'true'
@@ -88,13 +88,13 @@ jobs:
           cd ${{ env.NWJS_DIR }}
           gclient sync --no-history
 
-      # - name: Save
-      #   uses: actions/cache/save@v5
-      #   if: steps.cache.outputs.cache-hit != 'true'
-      #   with:
-      #     path: |
-      #       ${{ env.NWJS_DIR }}
-      #     key: ${{ env.NW_VERSION }}-src
+      - name: Save
+        uses: actions/cache/save@v5
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ${{ env.NWJS_DIR }}
+          key: ${{ env.NW_VERSION }}-src
 
       - name: Generate GN build files for Chromium
         run: |
@@ -114,7 +114,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -189,7 +189,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -269,7 +269,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -P -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -348,7 +348,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -P -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -428,7 +428,7 @@ jobs:
       - name: Compress artifacts
         shell: cmd
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" --posix -P -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:\Program Files\Git\usr\bin\tar.exe" -P -h --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
