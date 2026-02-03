@@ -44,16 +44,16 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      # - name: Restore
-      #   id: cache
-      #   uses: actions/cache/restore@v5
-      #   with:
-      #     path: |
-      #       ${{ env.NWJS_DIR }}
-      #     key: ${{ env.NW_VERSION }}-src
+      - name: Restore
+        id: cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ${{ env.NWJS_DIR }}
+          key: ${{ env.NW_VERSION }}-src
 
       - name: Initialize NW.js source directory
-        # if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ${{ env.NWJS_DIR }} -Force | Out-Null
@@ -75,7 +75,7 @@ jobs:
           $updatedContent | Set-Content .gclient -Encoding utf8
 
       - name: Clone NW.js dependent repos
-        # if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Path ${{ env.SRC_DIR }} -Force | Out-Null
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/nw.js.git ${{ env.SRC_DIR }}/content/nw
@@ -83,18 +83,18 @@ jobs:
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git ${{ env.SRC_DIR }}/v8
 
       - name: Sync source code with gclient
-        # if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd ${{ env.NWJS_DIR }}
           gclient sync --no-history
 
-      # - name: Save
-      #   uses: actions/cache/save@v5
-      #   if: steps.cache.outputs.cache-hit != 'true'
-      #   with:
-      #     path: |
-      #       ${{ env.NWJS_DIR }}
-      #     key: ${{ env.NW_VERSION }}-src
+      - name: Save
+        uses: actions/cache/save@v5
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ${{ env.NWJS_DIR }}
+          key: ${{ env.NW_VERSION }}-src
 
       - name: Generate GN build files for Chromium
         run: |
@@ -113,14 +113,14 @@ jobs:
 
       - name: Compress artifacts
         run:  |
-            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -P -C ${{ env.NWJS_DIR}} --force-local --use-compress-program "zstd -T0"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: artifacts.zip
+          path: artifact.tzst
 
   build2:
     runs-on: windows-latest
@@ -170,8 +170,8 @@ jobs:
 
       - name: Decompress artifacts
         run: |
-          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
-          rm artifacts.zip
+          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
+          rm artifact.tzst
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -181,14 +181,14 @@ jobs:
 
       - name: Compress artifacts
         run:  |
-            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -P -C ${{ env.NWJS_DIR}} --force-local --use-compress-program "zstd -T0"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: artifacts.zip
+          path: artifact.tzst
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
@@ -246,8 +246,8 @@ jobs:
 
       - name: Decompress artifacts
         run: |
-          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
-          rm artifacts.zip
+          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
+          rm artifact.tzst
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -257,14 +257,14 @@ jobs:
 
       - name: Compress artifacts
         run:  |
-            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -P -C ${{ env.NWJS_DIR}} --force-local --use-compress-program "zstd -T0"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: artifacts.zip
+          path: artifact.tzst
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
@@ -321,8 +321,8 @@ jobs:
 
       - name: Decompress artifacts
         run: |
-          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
-          rm artifacts.zip
+          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
+          rm artifact.tzst
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -332,14 +332,14 @@ jobs:
 
       - name: Compress artifacts
         run:  |
-            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -P -C ${{ env.NWJS_DIR}} --force-local --use-compress-program "zstd -T0"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: artifacts.zip
+          path: artifact.tzst
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
@@ -397,8 +397,8 @@ jobs:
 
       - name: Decompress artifacts
         run: |
-          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
-          rm artifacts.zip
+          "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
+          rm artifact.tzst
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -408,14 +408,14 @@ jobs:
 
       - name: Compress artifacts
         run:  |
-            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+            "C:\Program Files\Git\usr\bin\tar.exe" --posix -cf artifact.tzst --exclude artifact.tzst -P -C ${{ env.NWJS_DIR}} --force-local --use-compress-program "zstd -T0"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: artifacts.zip
+          path: artifact.tzst
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
