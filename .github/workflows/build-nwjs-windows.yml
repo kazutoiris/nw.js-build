@@ -111,13 +111,16 @@ jobs:
         run: |
           python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D build_type=Release_x64 third_party/node-nw/node.gyp
 
+      - name: Compress artifacts
+        run:  |
+            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: |
-            ${{ env.NWJS_DIR }}
+          path: artifacts.zip
 
   build2:
     runs-on: windows-latest
@@ -164,7 +167,11 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: build-cache
-          path: ${{ env.NWJS_DIR }}
+
+      - name: Decompress artifacts
+        run: |
+          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
+          rm artifacts.zip
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -172,13 +179,16 @@ jobs:
         run: |
           python3 ${{ github.workspace }}/build.py
 
+      - name: Compress artifacts
+        run:  |
+            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: |
-            ${{ env.NWJS_DIR }}
+          path: artifacts.zip
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
@@ -233,7 +243,11 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: build-cache
-          path: ${{ env.NWJS_DIR }}
+
+      - name: Decompress artifacts
+        run: |
+          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
+          rm artifacts.zip
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -241,13 +255,16 @@ jobs:
         run: |
           python3 ${{ github.workspace }}/build.py
 
+      - name: Compress artifacts
+        run:  |
+            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: |
-            ${{ env.NWJS_DIR }}
+          path: artifacts.zip
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
@@ -301,7 +318,11 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: build-cache
-          path: ${{ env.NWJS_DIR }}
+
+      - name: Decompress artifacts
+        run: |
+          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
+          rm artifacts.zip
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -309,13 +330,16 @@ jobs:
         run: |
           python3 ${{ github.workspace }}/build.py
 
+      - name: Compress artifacts
+        run:  |
+            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: |
-            ${{ env.NWJS_DIR }}
+          path: artifacts.zip
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}
@@ -370,7 +394,11 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: build-cache
-          path: ${{ env.NWJS_DIR }}
+
+      - name: Decompress artifacts
+        run: |
+          7z x artifacts.zip -o${{ env.NWJS_DIR}} -y
+          rm artifacts.zip
 
       - name: Build NW.js core
         working-directory: ${{ env.SRC_DIR }}
@@ -378,13 +406,16 @@ jobs:
         run: |
           python3 ${{ github.workspace }}/build.py
 
+      - name: Compress artifacts
+        run:  |
+            7z a -tzip artifacts.zip ${{ env.NWJS_DIR }} -mx=3 -mtc=on
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
           name: build-cache
           overwrite: true
-          path: |
-            ${{ env.NWJS_DIR }}
+          path: artifacts.zip
 
       - uses: actions/upload-artifact@v6
         if: ${{ steps.run-build.outputs.finish == 'true' }}

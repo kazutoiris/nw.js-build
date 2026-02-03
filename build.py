@@ -38,6 +38,6 @@ def main():
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=false")
     except Exception as e:
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
-
+        exit(1)
 if __name__ == '__main__':
     main()
