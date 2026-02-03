@@ -112,9 +112,9 @@ jobs:
           python3 third_party/node-nw/tools/gyp/gyp_main.py -I third_party/node-nw/common.gypi -D build_type=Release_x64 third_party/node-nw/node.gyp
 
       - name: Compress artifacts
-        shell: cmd
+        shell: bash
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -187,9 +187,9 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Compress artifacts
-        shell: cmd
+        shell: bash
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -267,9 +267,9 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Compress artifacts
-        shell: cmd
+        shell: bash
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -346,9 +346,9 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Compress artifacts
-        shell: cmd
+        shell: bash
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -426,9 +426,9 @@ jobs:
           python3 ${{ github.workspace }}/build.py
 
       - name: Compress artifacts
-        shell: cmd
+        shell: bash
         run:  |
-            "C:\Program Files\Git\usr\bin\tar.exe" -P --posix -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" .
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference --exclude-vcs -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
