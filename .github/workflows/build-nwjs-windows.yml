@@ -172,7 +172,7 @@ jobs:
       - name: Decompress artifacts
         shell: cmd
         run: |
-          mkdir ${{ env.NWJS_DIR}}
+          mkdir nwjs
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
@@ -251,7 +251,7 @@ jobs:
       - name: Decompress artifacts
         shell: cmd
         run: |
-          mkdir ${{ env.NWJS_DIR}}
+          mkdir nwjs
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
@@ -329,7 +329,7 @@ jobs:
       - name: Decompress artifacts
         shell: cmd
         run: |
-          mkdir ${{ env.NWJS_DIR}}
+          mkdir nwjs
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
@@ -408,7 +408,7 @@ jobs:
       - name: Decompress artifacts
         shell: cmd
         run: |
-          mkdir ${{ env.NWJS_DIR}}
+          mkdir nwjs
           "C:\Program Files\Git\usr\bin\tar.exe" -xf artifact.tzst -P -C ${{ env.NWJS_DIR }} --force-local --use-compress-program "zstd -d"
           del artifact.tzst
 
