@@ -6,15 +6,41 @@ import subprocess
 import ctypes
 import os
 
-def _run_build_process_timeout(cmd_input, timeout):
-    cmd_input.append('exit\n')
-    with subprocess.Popen(('cmd.exe', '/k'), encoding='utf-8', stdin=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP) as proc:
-        proc.stdin.write('\n'.join(cmd_input))
+def _run_build_process_timeout(cmd_list, timeout):
+    powershell_script = [
+        "$commands = @(",
+        *[f'"{cmd}"' for cmd in cmd_list],
+        ")",
+        "",
+        "foreach ($cmd in $commands) {",
+        "    Write-Host \"[Executing] $cmd\" -ForegroundColor Cyan",
+        "    & $cmd",
+        "    if ($LASTEXITCODE -ne 0) {",
+        "        Write-Host \"[Failed] Command exited with code: $LASTEXITCODE - $cmd\" -ForegroundColor Red",
+        "        exit $LASTEXITCODE",
+        "    }",
+        "    Write-Host \"[Success] $cmd\" -ForegroundColor Green",
+        "}",
+        "exit 0"
+    ]
+
+    script_content = "\n".join(powershell_script)
+
+    with subprocess.Popen(
+        ('powershell.exe', '-NoProfile', '-NonInteractive', '-Command', '-'),
+        encoding='utf-8',
+        stdin=subprocess.PIPE,
+        creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+    ) as proc:
+        proc.stdin.write(script_content)
+        proc.stdin.write("\n")
         proc.stdin.close()
+
         try:
             proc.wait(timeout)
             if proc.returncode != 0:
-                raise RuntimeError('Build failed!')
+                print(f'Build failed! Last exit code: {proc.returncode}')
+                exit(proc.returncode)
         except subprocess.TimeoutExpired:
             print('Sending keyboard interrupt')
             for _ in range(30):
@@ -28,17 +54,18 @@ def _run_build_process_timeout(cmd_input, timeout):
 
 def main():
     try:
-        cmd_input = []
-        cmd_input.append("ninja -C out/nw nwjs")
-        cmd_input.append("ninja -C out/Release_x64 node")
-        cmd_input.append("ninja -C out/nw copy_node")
-        cmd_input.append("ninja -C out/nw dist")
-        _run_build_process_timeout(cmd_input, timeout=4*60*60)
+        build_commands = [
+            "ninja -C out/nw nwjs",
+            "ninja -C out/Release_x64 node",
+            "ninja -C out/nw copy_node",
+        ]
+        _run_build_process_timeout(build_commands, timeout=4*60*60)
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
     except KeyboardInterrupt as e:
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=false")
     except Exception as e:
         open(os.environ["GITHUB_OUTPUT"],"w").write("finish=true")
         exit(1)
+
 if __name__ == '__main__':
     main()
