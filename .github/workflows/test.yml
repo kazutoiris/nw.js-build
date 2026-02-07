@@ -29,12 +29,8 @@ jobs:
           python-version: '2.7'
 
       - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
+        run: |
+            choco install -y  windows-sdk-11-version-22h2-all
 
       - name: Set Global Git Configs
         shell: pwsh
