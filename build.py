@@ -63,6 +63,7 @@ def main():
             "ninja -C out/nw nwjs",
             "ninja -C out/Release_x64 node",
             "ninja -C out/nw copy_node",
+            "ninja -C out/nw dist",
         ]
         _run_build_process_timeout(build_commands, timeout=3 * 60 * 60)
         open(os.environ["GITHUB_OUTPUT"], "w").write("finish=true")
