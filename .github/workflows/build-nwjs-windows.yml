@@ -1,5 +1,7 @@
 name: Build NW.js on Windows
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
