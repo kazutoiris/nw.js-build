@@ -1,11 +1,13 @@
 name: Build NW.js on Windows
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build1:
     runs-on: windows-latest
-    env:
+    env: &env
       NWJS_DIR: ${{ github.workspace }}\nwjs
       SRC_DIR: ${{ github.workspace }}\nwjs\src
       DEPOT_TOOLS_WIN_TOOLCHAIN: 0
@@ -94,7 +96,7 @@ jobs:
             ${{ env.NWJS_DIR }}
           key: ${{ env.NW_VERSION }}-src
 
-      - name: Generate GN build files for Chromium
+      - name: Generate GN build files for NW.js
         working-directory: ${{ env.SRC_DIR }}
         run: |
           $currentUnixTimestamp = [Math]::Floor((Get-Date -Date (Get-Date).ToUniversalTime() -UFormat %s))
@@ -126,19 +128,8 @@ jobs:
     needs: build1
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official fastbuild=2 is_debug=false"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
+    env: *env
+    steps: &build
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -163,7 +154,8 @@ jobs:
       - name: Install Depot Tools
         uses: newkdev/setup-depot-tools@v1.0.1
 
-      - uses: actions/download-artifact@v7
+      - name: Download artifacts
+        uses: actions/download-artifact@v7
         with:
           name: build-cache
 
@@ -193,11 +185,11 @@ jobs:
           path: artifact.tzst
 
       - uses: actions/upload-artifact@v6
+        name: Upload final artifacts
         if: ${{ steps.run-build.outputs.finish == 'true' }}
         with:
           name: my-artifact
           path: ${{ env.SRC_DIR }}/out
-
 
   build3:
     runs-on: windows-latest
@@ -205,77 +197,8 @@ jobs:
     if: ${{ needs.build2.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official fastbuild=2 is_debug=false"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
+    env: *env
+    steps: *build
 
   build4:
     runs-on: windows-latest
@@ -283,78 +206,8 @@ jobs:
     if: ${{ needs.build3.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
+    env: *env
+    steps: *build
 
   build5:
     runs-on: windows-latest
@@ -362,78 +215,8 @@ jobs:
     if: ${{ needs.build4.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
+    env: *env
+    steps: *build
 
   build6:
     runs-on: windows-latest
@@ -441,78 +224,8 @@ jobs:
     if: ${{ needs.build5.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
+    env: *env
+    steps: *build
 
   build7:
     runs-on: windows-latest
@@ -520,78 +233,8 @@ jobs:
     if: ${{ needs.build6.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
+    env: *env
+    steps: *build
 
   build8:
     runs-on: windows-latest
@@ -599,78 +242,8 @@ jobs:
     if: ${{ needs.build7.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
+    env: *env
+    steps: *build
 
   build9:
     runs-on: windows-latest
@@ -678,78 +251,8 @@ jobs:
     if: ${{ needs.build8.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
+    env: *env
+    steps: *build
 
   build10:
     runs-on: windows-latest
@@ -757,79 +260,8 @@ jobs:
     if: ${{ needs.build9.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
 
   build11:
     runs-on: windows-latest
@@ -837,711 +269,72 @@ jobs:
     if: ${{ needs.build10.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build12:
     runs-on: windows-latest
     needs: build11
     if: ${{ needs.build11.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build13:
     runs-on: windows-latest
     needs: build12
     if: ${{ needs.build12.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build14:
     runs-on: windows-latest
     needs: build13
     if: ${{ needs.build13.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build15:
     runs-on: windows-latest
     needs: build14
     if: ${{ needs.build14.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build16:
     runs-on: windows-latest
     needs: build15
     if: ${{ needs.build15.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build17:
     runs-on: windows-latest
     needs: build16
     if: ${{ needs.build16.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build18:
     runs-on: windows-latest
     needs: build17
     if: ${{ needs.build17.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build19:
     runs-on: windows-latest
     needs: build18
     if: ${{ needs.build18.outputs.finish == 'false' }}
     outputs:
       finish: ${{ steps.run-build.outputs.finish }}
-    env:
-      NWJS_DIR: ${{ github.workspace }}\nwjs
-      SRC_DIR: ${{ github.workspace }}\nwjs\src
-      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
-      GYP_DEFINES: "target_arch=x64 building_nw=1 clang=1 icu_use_data_file_flag=1 host_arch=x64 buildtype=Official"
-      GYP_GENERATORS: "ninja"
-      GYP_CHROMIUM_NO_ACTION: 0
-      GYP_GENERATOR_FLAGS: "output_dir=out"
-      GYP_MSVS_VERSION: "2022"
-      GYP_MSVS_OVERRIDE_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
-      NW_VERSION: "nw97"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set-up Python 2.7
-        uses: LizardByte/actions/actions/setup_python@master
-        with:
-          python-version: '2.7'
-
-      - name: Install Windows 11 SDK
-        run: >
-            Start-Process -wait -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
-            -ArgumentList "modify", "--installPath", """C:\Program Files\Microsoft Visual Studio\2022\Enterprise""",
-            "--add", "Microsoft.VisualStudio.Component.Windows11SDK.22621",
-            "--quiet", "--norestart", "--nocache"
-            -Verb RunAs
-
-      - name: Set Global Git Configs
-        shell: pwsh
-        run: |
-            git config --global depot-tools.allowGlobalGitConfig true
-
-      - name: Install Depot Tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-cache
-
-      - name: Decompress artifacts
-        shell: bash
-        run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
-          rm artifact.tzst
-
-      - name: Build NW.js core
-        working-directory: ${{ env.SRC_DIR }}
-        id: run-build
-        run: |
-          python3 ${{ github.workspace }}/build.py
-
-      - name: Compress artifacts
-        shell: bash
-        run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: build-cache
-          overwrite: true
-          path: artifact.tzst
-
-      - uses: actions/upload-artifact@v6
-        if: ${{ steps.run-build.outputs.finish == 'true' }}
-        with:
-          name: my-artifact
-          path: ${{ env.SRC_DIR }}/out
-
-
+    env: *env
+    steps: *build
   build20:
     runs-on: windows-latest
     needs: build19
