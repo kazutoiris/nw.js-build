@@ -23,10 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set-up Python 2.x
+      - name: Set-up Python 2.7
         uses: LizardByte/actions/actions/setup_python@master
         with:
-          python-version: '2.x'
+          python-version: '2.7'
 
       - name: Install Windows 11 SDK
         run: |
