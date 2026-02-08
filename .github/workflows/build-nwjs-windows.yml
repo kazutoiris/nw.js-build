@@ -114,7 +114,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst --force-local --use-compress-program "zstd -T0" nwjs || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -162,8 +162,7 @@ jobs:
       - name: Decompress artifacts
         shell: bash
         run: |
-          mkdir nwjs
-          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P -C nwjs --force-local --use-compress-program "zstd -d" || true
+          "C:/Program Files/Git/usr/bin/tar.exe" -xf artifact.tzst -P --force-local --use-compress-program "zstd -d" || true
           rm artifact.tzst
 
       - name: Build NW.js core
@@ -175,7 +174,7 @@ jobs:
       - name: Compress artifacts
         shell: bash
         run:  |
-            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst -C nwjs --force-local --use-compress-program "zstd -T0" . || true
+            "C:/Program Files/Git/usr/bin/tar.exe" -P -h --hard-dereference -cf artifact.tzst --exclude artifact.tzst --force-local --use-compress-program "zstd -T0" nwjs || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
