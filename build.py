@@ -71,10 +71,8 @@ def main():
         _run_build_process_timeout(build_commands, timeout=3 * 60 * 60)
         open(os.environ["GITHUB_OUTPUT"], "w").write("finish=true")
     except KeyboardInterrupt as _:
-        pass
         open(os.environ["GITHUB_OUTPUT"], "w").write("finish=false")
     except Exception as _:
-        pass
         open(os.environ["GITHUB_OUTPUT"], "w").write("finish=true")
         exit(1)
 
