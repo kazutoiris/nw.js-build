@@ -32,6 +32,8 @@ def _run_build_process_timeout(cmd_list, timeout):
             "powershell.exe",
             "-NoProfile",
             "-NonInteractive",
+            "-Command",
+            "-",
         ),
         encoding="utf-8",
         stdin=subprocess.PIPE,
