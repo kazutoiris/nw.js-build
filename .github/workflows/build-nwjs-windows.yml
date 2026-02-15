@@ -70,6 +70,7 @@ jobs:
           New-Item -ItemType Directory -Path ${{ env.SRC_DIR }} -Force | Out-Null
           cd ${{ env.SRC_DIR }}
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/nw.js.git content\nw
+          Copy-Item -Path ${{github.workspace}}\BUILD.gn -Destination content\nw -Force
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/node.git third_party\node-nw
           git clone -b ${{env.NW_VERSION}} --depth 1 --recursive https://github.com/nwjs/v8.git v8
 
