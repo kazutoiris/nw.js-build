@@ -311,7 +311,6 @@ copy("copy_node") {
 
 if (is_win && !is_component_build) {
   action("dump") {
-    testonly = true
     script = "tools/dump_win_syms.py"
     inputs = [ "$root_build_dir/nw.exe",
                "$root_build_dir/nw.dll",
